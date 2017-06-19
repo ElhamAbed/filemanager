@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+        android:weightSum="1">
+
+    <ListView
+      android:id="@android:id/list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/btnPnlContainer"
+        android:background="@drawable/bkg"
+
+        ></ListView>
+
+<LinearLayout
+    android:id="@+id/btnPnlContainer"
+    android:layout_alignParentBottom="true"
+    android:layout_width="match_parent"
+
+    android:layout_height="wrap_content">
+    <include
+
+        layout="@layout/generic_header_layout" />
+
+
+</LinearLayout>
+    <LinearLayout
+        android:id="@+id/btnPnlContainer2"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+
+        android:layout_height="wrap_content">
+        <include
+
+            layout="@layout/panel_two" />
+
+
+    </LinearLayout>
+
+
+
+
+</RelativeLayout>
