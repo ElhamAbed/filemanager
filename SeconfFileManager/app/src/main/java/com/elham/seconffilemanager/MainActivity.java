@@ -14,6 +14,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
@@ -40,6 +42,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.Checkable;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import java.sql.Date;
@@ -50,11 +53,14 @@ import java.util.zip.ZipOutputStream;
 
 import android.content.Intent;
 import android.view.View;
+import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.nispok.snackbar.Snackbar;
+
+import static android.content.ContentValues.TAG;
 
 public class MainActivity extends ListActivity    {
     CopyTask copyTask;
@@ -64,6 +70,7 @@ public class MainActivity extends ListActivity    {
     UnCompressTask uncompressTask;
 
     private File root;
+
     private ArrayList<File> fileList = new ArrayList<File>();
     private ListView listView;
     private FileArrayAdapter adapter;
@@ -82,10 +89,12 @@ public class MainActivity extends ListActivity    {
     ActionMode actionMode = null;
     public Boolean statuscolr ;
     Button btncopy, btnpaste, btncut, btndelete, btncancel, btnshare, btncompress, btnrename, btnuncompress, btnpro ;
+    ImageButton copyimangebtn, cutimagebtn, deleteimagebtn, moreimagebtn, pasteimagebtn, cancelimagebtn;
+    TextView copytxt, cuttxt, deletetxt, moretxt, pastetxt, canceltxt;
     File srcDir, targetLocation;
     CheckBox checkBox;
     Boolean statusLongclick ;
-    LinearLayout rlayout1, rlayout2;
+    LinearLayout rlayout1, rlayout2, rlayout3 , rlayout4;
     public ArrayList<String> sourceFiles;
     public ArrayList<File> SourceFilesaddr;
     public ProgressBar progressBar;
@@ -94,6 +103,7 @@ public class MainActivity extends ListActivity    {
     public  String pathForcut;
     String ssss;
     String inputName;
+    MainActivity mainActivity;
 
 
 
@@ -104,12 +114,15 @@ public class MainActivity extends ListActivity    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         sourceFiles= new ArrayList<String>();
-        final MainActivity mainActivity = this;
+        mainActivity = this;
         SourceFilesaddr = new ArrayList<File>();
         listView =(ListView) getListView();
         LayoutInflater inflater = getLayoutInflater();
-        rlayout1 = (LinearLayout) findViewById(R.id.btnPnlContainer);
-        rlayout2 = (LinearLayout) findViewById(R.id.btnPnlContainer2);
+        rlayout3 = (LinearLayout) findViewById(R.id.btnPnlContainer);
+        rlayout4 = (LinearLayout) findViewById(R.id.btnPnlContainer2);
+        rlayout1 = (LinearLayout) findViewById(R.id.firstpannel);
+        rlayout2 = (LinearLayout) findViewById(R.id.secondpannel);
+
 
         checkBox = (CheckBox) findViewById(R.id.check);
         statusLongclick = false;
@@ -118,365 +131,467 @@ public class MainActivity extends ListActivity    {
         listView.setLongClickable(true);
         registerForContextMenu(getListView());
 
-        btncopy = (Button) findViewById(R.id.btncopy);
-        btncut = (Button) findViewById(R.id.btncut);
-        btndelete = (Button) findViewById(R.id.btndelete);
-        btncopy.setTag(getSelectedItemPosition());
+//        btncopy = (Button) findViewById(R.id.btncopy);
+//        btncut = (Button) findViewById(R.id.btncut);
+//        btndelete = (Button) findViewById(R.id.btndelete);
+////        btncopy.setTag(getSelectedItemPosition());
+//
+//        btncopy.setOnClickListener(new View.OnClickListener() {
+//
+//            @Override
+//            public void onClick(View v) {
+//                WhichBtnPressed=R.id.btncopy;
+//                sourceFiles.clear();
+//                for ( int i =0; i < adapter.getSelectedIds().size() ; i++) {
+//                     al=adapter.mSelectedItemsIds.keyAt(i);
+//                    Item o = adapter.getItem(al);
+//                    sourceFiles.add(o.getPath().toString());
+//                }
+//                FileArrayAdapter.showCheckBox = false;
+//                FileArrayAdapter fa= (FileArrayAdapter) getListView().getAdapter();
+//                fa.removeSelection();
+//                rlayout1.setVisibility(LinearLayout.GONE);
+//                rlayout2.setVisibility(LinearLayout.VISIBLE);
+//            }
+//        });
+//
+//
+//        btncut.setOnClickListener(new View.OnClickListener() {
+//
+//            @Override
+//            public void onClick(View v) {
+//                sourceFiles.clear();
+//                WhichBtnPressed=R.id.btncut;
+//                pathForcut= currentPath;
+//                for ( int i =0; i < adapter.getSelectedIds().size() ; i++) {
+//                    al=adapter.mSelectedItemsIds.keyAt(i);
+//                    Item o = adapter.getItem(al);
+//                    sourceFiles.add(o.getPath().toString());
+//
+//                }
+//
+//                FileArrayAdapter.showCheckBox = false;
+//                FileArrayAdapter fa= (FileArrayAdapter) getListView().getAdapter();
+//                fa.removeSelection();
+//                rlayout1.setVisibility(LinearLayout.GONE);
+//                rlayout2.setVisibility(LinearLayout.VISIBLE);
+//            }
+//        });
+//
+//
+//
+//        btndelete.setOnClickListener(new View.OnClickListener() {
+//
+//            @Override
+//            public void onClick(View v) {
+//                sourceFiles.clear();
+//                for ( int i =0; i < adapter.getSelectedIds().size() ; i++) {
+//                    al=adapter.mSelectedItemsIds.keyAt(i);
+//                    Item o = adapter.getItem(al);
+//                    sourceFiles.add(o.getPath().toString());
+//
+//                }
+//
+//
+//
+//                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+//                builder.setMessage("Are you sure you want to delete?")
+//                        .setCancelable(false)
+//                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+//                            public void onClick(DialogInterface dialog, int id) {
+//                                ProgressDialog progress = new ProgressDialog(MainActivity.this);
+//                                deleteTask= new DeleteTask(progress, sourceFiles);
+//                                deleteTask.setOnCompleteListener(new CompleteAction() {
+//                                    @Override
+//                                    public void onCompleteListener() {
+//                                        mainActivity.runOnUiThread(new Runnable() {
+//                                            @Override
+//                                            public void run() {
+//                                                getfile(new File(currentPath));
+//                                                adapter.notifyDataSetChanged();
+//                                            }
+//                                        });
+//
+//                                    }
+//                                });
+//                                deleteTask.execute();
+//                            }
+//                        })
+//                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
+//                            public void onClick(DialogInterface dialog, int id) {
+//                                dialog.cancel();
+//                                FileArrayAdapter.showCheckBox = false;
+//                                FileArrayAdapter fa= (FileArrayAdapter) getListView().getAdapter();
+//                                fa.removeSelection();
+//                                rlayout1.setVisibility(LinearLayout.GONE);
+//                                getfile(new File(currentPath));
+//                                adapter.notifyDataSetChanged();
+//
+//                            }
+//                        });
+//                FileArrayAdapter.showCheckBox = false;
+//                FileArrayAdapter fa= (FileArrayAdapter) getListView().getAdapter();
+//                fa.removeSelection();
+//                rlayout1.setVisibility(LinearLayout.GONE);
+//                AlertDialog alert = builder.create();
+//                alert.show();
+//            }
+//        });
+//
+//
+//
+//
+//
+//
+//        btnpaste = (Button)  findViewById(R.id.btnpaste);
+//        btnpaste.setOnClickListener(new View.OnClickListener() {
+//           @Override
+//            public void onClick(View v) {
+//               if (WhichBtnPressed == R.id.btncopy) {
+//                   ProgressDialog progress = new ProgressDialog(MainActivity.this);
+//                   copyTask = new CopyTask(progress, sourceFiles, new File(currentPath));
+//                   copyTask.setOnCompleteListener(new CompleteAction() {
+//                       @Override
+//                       public void onCompleteListener() {
+//                           mainActivity.runOnUiThread(new Runnable() {
+//                               @Override
+//                               public void run() {
+//                                   getfile(new File(currentPath));
+//                                   adapter.notifyDataSetChanged();
+//                               }
+//                           });
+//
+//                       }
+//                   });
+//                   copyTask.execute();
+//               }
+//
+//               if (WhichBtnPressed == R.id.btncut) {
+//                   ProgressDialog progress = new ProgressDialog(MainActivity.this);
+//                   cutTask = new CutTask(progress, sourceFiles, new File(currentPath), pathForcut);
+//                   cutTask.setOnCompleteListener(new CompleteAction() {
+//                       @Override
+//                       public void onCompleteListener() {
+//                           mainActivity.runOnUiThread(new Runnable() {
+//                               @Override
+//                               public void run() {
+//                                   getfile(new File(currentPath));
+//                                   adapter.notifyDataSetChanged();
+//                               }
+//                           });
+//
+//                       }
+//                   });
+//                   cutTask.execute();
+//                   sourceFiles.clear();
+//                   FileArrayAdapter.showCheckBox = false;
+//                   FileArrayAdapter fa = (FileArrayAdapter) getListView().getAdapter();
+//                   fa.removeSelection();
+//                   rlayout1.setVisibility(LinearLayout.GONE);
+//                   rlayout2.setVisibility(LinearLayout.GONE);
+//
+//
+//               }
+//           };
+//        });
+//
+//
+//
+//        btncancel = (Button)  findViewById(R.id.btncancel);
+//        btncancel.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                sourceFiles.clear();
+//                rlayout2.setVisibility(LinearLayout.GONE);
+//            }
+//        });
+//
+//
+//        btnshare = (Button) findViewById(R.id.btnshare);
+//        btnshare.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+//                sharingIntent.setType("text/plain");
+//                String shareBody = "Here is the share content body";
+//                sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Subject Here");
+//                sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+//                startActivity(Intent.createChooser(sharingIntent, "Share via"));
+//            }
+//        });
+//
+//
+//        btncompress = (Button) findViewById(R.id.btncompress);
+//        btncompress.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                sourceFiles.clear();
+//                String ssss = null;
+//                for (int i = 0; i < adapter.getSelectedIds().size(); i++) {
+//                    al=adapter.mSelectedItemsIds.keyAt(i);
+//                    Item o = adapter.getItem(al);
+//                    sourceFiles.add(o.getPath().toString());
+//                    ssss = o.getPath().toString();
+//
+//                }
+//                AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
+//                alert.setTitle("Compress");
+//                alert.setMessage("Type your new name, here");
+//                final EditText input = new EditText(MainActivity.this);
+//                input.setText(ssss.substring(ssss.lastIndexOf("/")+1)+".zip");
+//                alert.setView(input);
+//                final String finalSsss = ssss;
+//                alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+//
+//                            public void onClick(DialogInterface dialog, int whichButton) {
+//
+//                                // Grab the EditText's input
+//                                inputName = input.getText().toString();
+//                                ProgressDialog progress = new ProgressDialog(MainActivity.this);
+//                                compressTask = new  CompressTask(progress, sourceFiles, inputName);
+//                                compressTask.setOnCompleteListener(new CompleteAction() {
+//                                    @Override
+//                                    public void onCompleteListener() {
+//                                        mainActivity.runOnUiThread(new Runnable() {
+//                                            @Override
+//                                            public void run() {
+//                                                getfile(new File(currentPath));
+//                                                adapter.notifyDataSetChanged();
+//                                            }
+//                                        });
+//
+//                                    }
+//                                });
+//                                compressTask.execute();
+//
+//                                FileArrayAdapter.showCheckBox = false;
+//                                FileArrayAdapter fa = (FileArrayAdapter) getListView().getAdapter();
+//                                fa.removeSelection();
+//                                rlayout1.setVisibility(LinearLayout.GONE);
+//                                rlayout2.setVisibility(LinearLayout.GONE);
+//                            }
+//
+//                        });
+//                alert.show();
+//
+//
+//
+//
+//            }
+//        });
+//
+//
+//
+//
+//
+//        btnuncompress = (Button) findViewById(R.id.btnuncompress);
+//        btnuncompress.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                sourceFiles.clear();
+//                String ssss = null;
+//                for (int i = 0; i < adapter.getSelectedIds().size(); i++) {
+//                    al = adapter.mSelectedItemsIds.keyAt(i);
+//                    Item o = adapter.getItem(al);
+//                    ssss = o.getPath().toString();
+//
+//                }
+//                ProgressDialog progress = new ProgressDialog(MainActivity.this);
+//                uncompressTask = new UnCompressTask(progress, ssss);
+//                uncompressTask.setOnCompleteListener(new CompleteAction() {
+//                    @Override
+//                    public void onCompleteListener() {
+//                        mainActivity.runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                getfile(new File(currentPath));
+//                                adapter.notifyDataSetChanged();
+//                            }
+//                        });
+//
+//                    }
+//                });
+//                uncompressTask.execute();
+//
+//                FileArrayAdapter.showCheckBox = false;
+//                FileArrayAdapter fa = (FileArrayAdapter) getListView().getAdapter();
+//                fa.removeSelection();
+//                rlayout1.setVisibility(LinearLayout.GONE);
+//                rlayout2.setVisibility(LinearLayout.GONE);
+//
+//
+//            }
+//        });
+//
+//
+//
+//        btnrename= (Button) findViewById(R.id.btnrename);
+//        btnrename.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//                for ( int i =0; i < adapter.getSelectedIds().size() ; i++) {
+//                    al=adapter.mSelectedItemsIds.keyAt(i);
+//                    Item o = adapter.getItem(al);
+//                    ssss= o.getPath().toString();
+//
+//                }
+//                AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
+//                alert.setTitle("Rename");
+//                alert.setMessage("Type your new name, here");
+//                final EditText input = new EditText(MainActivity.this);
+//                input.setText(ssss.substring(ssss.lastIndexOf("/")+1));
+//                alert.setView(input);
+//                alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+//
+//                    public void onClick(DialogInterface dialog, int whichButton) {
+//
+//                        // Grab the EditText's input
+//                        String inputName = input.getText().toString();
+//
+//                       // File dir2 = Environment.getExternalStorageDirectory();
+//                        File file = new File(currentPath,ssss.substring(ssss.lastIndexOf("/")+1));
+//                        File file2 = new File(currentPath, inputName);
+//                        boolean success = file.renameTo(file2);
+//                        // Put it into memory (don't forget to commit!)
+//
+//
+//                        // Welcome the new user
+//                        Toast.makeText(getApplicationContext(), "the name changed to " + inputName , Toast.LENGTH_LONG).show();
+//                        FileArrayAdapter.showCheckBox = false;
+//                        FileArrayAdapter fa= (FileArrayAdapter) getListView().getAdapter();
+//                        fa.removeSelection();
+//                        rlayout1.setVisibility(LinearLayout.GONE);
+//                        getfile(new File(currentPath));
+//                        adapter.notifyDataSetChanged();
+//                    }
+//
+//                });
+//
+//                // Make a "Cancel" button
+//                // that simply dismisses the alert
+//                alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+//
+//                    public void onClick(DialogInterface dialog, int whichButton) {}
+//                });
+//                FileArrayAdapter.showCheckBox = false;
+//                FileArrayAdapter fa= (FileArrayAdapter) getListView().getAdapter();
+//                fa.removeSelection();
+//                rlayout1.setVisibility(LinearLayout.GONE);
+//                getfile(new File(currentPath));
+//                adapter.notifyDataSetChanged();
+//                alert.show();
+//            }
+//        });
+//
+//
+//        btnpro = (Button) findViewById(R.id.btnpro);
+//        btnpro.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//            }
+//        });
 
-        btncopy.setOnClickListener(new View.OnClickListener() {
 
+        copyimangebtn = (ImageButton) findViewById(R.id.copyimagebtn);
+        copyimangebtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                WhichBtnPressed=R.id.btncopy;
-                sourceFiles.clear();
-                for ( int i =0; i < adapter.getSelectedIds().size() ; i++) {
-                     al=adapter.mSelectedItemsIds.keyAt(i);
-                    Item o = adapter.getItem(al);
-                    sourceFiles.add(o.getPath().toString());
-                }
-                FileArrayAdapter.showCheckBox = false;
-                FileArrayAdapter fa= (FileArrayAdapter) getListView().getAdapter();
-                fa.removeSelection();
-                rlayout1.setVisibility(LinearLayout.GONE);
-                rlayout2.setVisibility(LinearLayout.VISIBLE);
+               copyOnclick();
+
+            }
+        });
+        copytxt = (TextView) findViewById(R.id.copytxt);
+        copytxt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+               copyOnclick();
+
             }
         });
 
 
-        btncut.setOnClickListener(new View.OnClickListener() {
-
+        cutimagebtn = (ImageButton) findViewById(R.id.cutimagebtn);
+        cutimagebtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sourceFiles.clear();
-                WhichBtnPressed=R.id.btncut;
-                pathForcut= currentPath;
-                for ( int i =0; i < adapter.getSelectedIds().size() ; i++) {
-                    al=adapter.mSelectedItemsIds.keyAt(i);
-                    Item o = adapter.getItem(al);
-                    sourceFiles.add(o.getPath().toString());
+                cutOnclick();
+            }
+        });
+        cuttxt = (TextView)  findViewById(R.id.cuttxt);
+        cuttxt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cutOnclick();
+            }
+        });
 
-                }
 
-                FileArrayAdapter.showCheckBox = false;
-                FileArrayAdapter fa= (FileArrayAdapter) getListView().getAdapter();
-                fa.removeSelection();
-                rlayout1.setVisibility(LinearLayout.GONE);
-                rlayout2.setVisibility(LinearLayout.VISIBLE);
+        deleteimagebtn = (ImageButton)  findViewById(R.id.deleteimangebtn);
+        deleteimagebtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                deleteOnclick();
+            }
+        });
+        deletetxt= (TextView) findViewById(R.id.deletetxt);
+        deletetxt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                deleteOnclick();
+            }
+        });
+
+
+        moreimagebtn= (ImageButton)  findViewById(R.id.moreimagebtn);
+        moreimagebtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                moreOnclick();
+            }
+
+        });
+        moretxt= (TextView) findViewById(R.id.moretxt) ;
+        moretxt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                moreOnclick();
             }
         });
 
 
 
-        btndelete.setOnClickListener(new View.OnClickListener() {
-
+        pasteimagebtn= (ImageButton) findViewById(R.id.pasteimagebtn) ;
+        pasteimagebtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sourceFiles.clear();
-                for ( int i =0; i < adapter.getSelectedIds().size() ; i++) {
-                    al=adapter.mSelectedItemsIds.keyAt(i);
-                    Item o = adapter.getItem(al);
-                    sourceFiles.add(o.getPath().toString());
+                pasteOnclick();
 
-                }
-
-
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setMessage("Are you sure you want to delete?")
-                        .setCancelable(false)
-                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                ProgressDialog progress = new ProgressDialog(MainActivity.this);
-                                deleteTask= new DeleteTask(progress, sourceFiles);
-                                deleteTask.setOnCompleteListener(new CompleteAction() {
-                                    @Override
-                                    public void onCompleteListener() {
-                                        mainActivity.runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                getfile(new File(currentPath));
-                                                adapter.notifyDataSetChanged();
-                                            }
-                                        });
-
-                                    }
-                                });
-                                deleteTask.execute();
-                            }
-                        })
-                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.cancel();
-                                FileArrayAdapter.showCheckBox = false;
-                                FileArrayAdapter fa= (FileArrayAdapter) getListView().getAdapter();
-                                fa.removeSelection();
-                                rlayout1.setVisibility(LinearLayout.GONE);
-                                getfile(new File(currentPath));
-                                adapter.notifyDataSetChanged();
-
-                            }
-                        });
-                FileArrayAdapter.showCheckBox = false;
-                FileArrayAdapter fa= (FileArrayAdapter) getListView().getAdapter();
-                fa.removeSelection();
-                rlayout1.setVisibility(LinearLayout.GONE);
-                AlertDialog alert = builder.create();
-                alert.show();
+            }
+        });
+        pastetxt = (TextView) findViewById(R.id.pastetxt);
+        pastetxt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                pasteOnclick();
             }
         });
 
 
 
-
-
-
-        btnpaste = (Button)  findViewById(R.id.btnpaste);
-        btnpaste.setOnClickListener(new View.OnClickListener() {
-           @Override
-            public void onClick(View v) {
-               if (WhichBtnPressed == R.id.btncopy) {
-                   ProgressDialog progress = new ProgressDialog(MainActivity.this);
-                   copyTask = new CopyTask(progress, sourceFiles, new File(currentPath));
-                   copyTask.setOnCompleteListener(new CompleteAction() {
-                       @Override
-                       public void onCompleteListener() {
-                           mainActivity.runOnUiThread(new Runnable() {
-                               @Override
-                               public void run() {
-                                   getfile(new File(currentPath));
-                                   adapter.notifyDataSetChanged();
-                               }
-                           });
-
-                       }
-                   });
-                   copyTask.execute();
-               }
-
-               if (WhichBtnPressed == R.id.btncut) {
-                   ProgressDialog progress = new ProgressDialog(MainActivity.this);
-                   cutTask = new CutTask(progress, sourceFiles, new File(currentPath), pathForcut);
-                   cutTask.setOnCompleteListener(new CompleteAction() {
-                       @Override
-                       public void onCompleteListener() {
-                           mainActivity.runOnUiThread(new Runnable() {
-                               @Override
-                               public void run() {
-                                   getfile(new File(currentPath));
-                                   adapter.notifyDataSetChanged();
-                               }
-                           });
-
-                       }
-                   });
-                   cutTask.execute();
-                   sourceFiles.clear();
-                   FileArrayAdapter.showCheckBox = false;
-                   FileArrayAdapter fa = (FileArrayAdapter) getListView().getAdapter();
-                   fa.removeSelection();
-                   rlayout1.setVisibility(LinearLayout.GONE);
-                   rlayout2.setVisibility(LinearLayout.GONE);
-
-
-               }
-           };
-        });
-
-
-
-        btncancel = (Button)  findViewById(R.id.btncancel);
-        btncancel.setOnClickListener(new View.OnClickListener() {
+        cancelimagebtn= (ImageButton)  findViewById(R.id.cancleimagebtn);
+        cancelimagebtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sourceFiles.clear();
-                rlayout2.setVisibility(LinearLayout.GONE);
+             cancelOnclick();
             }
         });
-
-
-        btnshare = (Button) findViewById(R.id.btnshare);
-        btnshare.setOnClickListener(new View.OnClickListener() {
+        canceltxt= (TextView) findViewById(R.id.canceltxt) ;
+        canceltxt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
-                sharingIntent.setType("text/plain");
-                String shareBody = "Here is the share content body";
-                sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Subject Here");
-                sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
-                startActivity(Intent.createChooser(sharingIntent, "Share via"));
-            }
-        });
-
-
-        btncompress = (Button) findViewById(R.id.btncompress);
-        btncompress.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sourceFiles.clear();
-                String ssss = null;
-                for (int i = 0; i < adapter.getSelectedIds().size(); i++) {
-                    al=adapter.mSelectedItemsIds.keyAt(i);
-                    Item o = adapter.getItem(al);
-                    sourceFiles.add(o.getPath().toString());
-                    ssss = o.getPath().toString();
-
-                }
-                AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
-                alert.setTitle("Compress");
-                alert.setMessage("Type your new name, here");
-                final EditText input = new EditText(MainActivity.this);
-                input.setText(ssss.substring(ssss.lastIndexOf("/")+1)+".zip");
-                alert.setView(input);
-                final String finalSsss = ssss;
-                alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-
-                            public void onClick(DialogInterface dialog, int whichButton) {
-
-                                // Grab the EditText's input
-                                inputName = input.getText().toString();
-                                ProgressDialog progress = new ProgressDialog(MainActivity.this);
-                                compressTask = new  CompressTask(progress, sourceFiles, inputName);
-                                compressTask.setOnCompleteListener(new CompleteAction() {
-                                    @Override
-                                    public void onCompleteListener() {
-                                        mainActivity.runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                getfile(new File(currentPath));
-                                                adapter.notifyDataSetChanged();
-                                            }
-                                        });
-
-                                    }
-                                });
-                                compressTask.execute();
-
-                                FileArrayAdapter.showCheckBox = false;
-                                FileArrayAdapter fa = (FileArrayAdapter) getListView().getAdapter();
-                                fa.removeSelection();
-                                rlayout1.setVisibility(LinearLayout.GONE);
-                                rlayout2.setVisibility(LinearLayout.GONE);
-                            }
-
-                        });
-                alert.show();
-
-
-
-
-            }
-        });
-
-
-
-
-
-        btnuncompress = (Button) findViewById(R.id.btnuncompress);
-        btnuncompress.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sourceFiles.clear();
-                String ssss = null;
-                for (int i = 0; i < adapter.getSelectedIds().size(); i++) {
-                    al = adapter.mSelectedItemsIds.keyAt(i);
-                    Item o = adapter.getItem(al);
-                    ssss = o.getPath().toString();
-
-                }
-                ProgressDialog progress = new ProgressDialog(MainActivity.this);
-                uncompressTask = new UnCompressTask(progress, ssss);
-                uncompressTask.setOnCompleteListener(new CompleteAction() {
-                    @Override
-                    public void onCompleteListener() {
-                        mainActivity.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                getfile(new File(currentPath));
-                                adapter.notifyDataSetChanged();
-                            }
-                        });
-
-                    }
-                });
-                uncompressTask.execute();
-
-                FileArrayAdapter.showCheckBox = false;
-                FileArrayAdapter fa = (FileArrayAdapter) getListView().getAdapter();
-                fa.removeSelection();
-                rlayout1.setVisibility(LinearLayout.GONE);
-                rlayout2.setVisibility(LinearLayout.GONE);
-
-
-            }
-        });
-
-
-
-        btnrename= (Button) findViewById(R.id.btnrename);
-        btnrename.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                for ( int i =0; i < adapter.getSelectedIds().size() ; i++) {
-                    al=adapter.mSelectedItemsIds.keyAt(i);
-                    Item o = adapter.getItem(al);
-                    ssss= o.getPath().toString();
-
-                }
-                AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
-                alert.setTitle("Rename");
-                alert.setMessage("Type your new name, here");
-                final EditText input = new EditText(MainActivity.this);
-                input.setText(ssss.substring(ssss.lastIndexOf("/")+1));
-                alert.setView(input);
-                alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-
-                    public void onClick(DialogInterface dialog, int whichButton) {
-
-                        // Grab the EditText's input
-                        String inputName = input.getText().toString();
-
-                       // File dir2 = Environment.getExternalStorageDirectory();
-                        File file = new File(currentPath,ssss.substring(ssss.lastIndexOf("/")+1));
-                        File file2 = new File(currentPath, inputName);
-                        boolean success = file.renameTo(file2);
-                        // Put it into memory (don't forget to commit!)
-
-
-                        // Welcome the new user
-                        Toast.makeText(getApplicationContext(), "the name changed to " + inputName , Toast.LENGTH_LONG).show();
-                        FileArrayAdapter.showCheckBox = false;
-                        FileArrayAdapter fa= (FileArrayAdapter) getListView().getAdapter();
-                        fa.removeSelection();
-                        rlayout1.setVisibility(LinearLayout.GONE);
-                        getfile(new File(currentPath));
-                        adapter.notifyDataSetChanged();
-                    }
-
-                });
-
-                // Make a "Cancel" button
-                // that simply dismisses the alert
-                alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-
-                    public void onClick(DialogInterface dialog, int whichButton) {}
-                });
-                FileArrayAdapter.showCheckBox = false;
-                FileArrayAdapter fa= (FileArrayAdapter) getListView().getAdapter();
-                fa.removeSelection();
-                rlayout1.setVisibility(LinearLayout.GONE);
-                getfile(new File(currentPath));
-                adapter.notifyDataSetChanged();
-                alert.show();
-            }
-        });
-
-
-        btnpro = (Button) findViewById(R.id.btnpro);
-        btnpro.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                
+                cancelOnclick();
             }
         });
 
@@ -693,6 +808,160 @@ public class MainActivity extends ListActivity    {
         currentPath  = root.getPath();
     }
 
+    private void cancelOnclick() {
+        sourceFiles.clear();
+        rlayout2.setVisibility(LinearLayout.GONE);
+    }
+
+    private void moreOnclick() {
+        PopupMenu popup = new PopupMenu(MainActivity.this, moreimagebtn);
+        //Inflating the Popup using xml file
+        popup.getMenuInflater().inflate(R.menu.menu, popup.getMenu());
+
+        //registering popup with OnMenuItemClickListener
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            public boolean onMenuItemClick(MenuItem item) {
+                Toast.makeText(MainActivity.this,"You Clicked : " + item.getTitle(),Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        });
+
+        popup.show();
+    }
+
+    private void pasteOnclick() {
+
+
+        if (WhichBtnPressed == R.id.btncopy) {
+            ProgressDialog progress = new ProgressDialog(MainActivity.this);
+            copyTask = new CopyTask(progress, sourceFiles, new File(currentPath));
+            copyTask.setOnCompleteListener(new CompleteAction() {
+                @Override
+                public void onCompleteListener() {
+
+
+
+                    mainActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            getfile(new File(currentPath));
+                            adapter.notifyDataSetChanged();
+                        }
+                    });
+
+                }
+            });
+            copyTask.execute();
+        }
+
+        if (WhichBtnPressed == R.id.btncut) {
+            ProgressDialog progress = new ProgressDialog(MainActivity.this);
+            cutTask = new CutTask(progress, sourceFiles, new File(currentPath), pathForcut);
+            cutTask.setOnCompleteListener(new CompleteAction() {
+                @Override
+                public void onCompleteListener() {
+                    //MainActivity mainActivity = null;
+                    mainActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            getfile(new File(currentPath));
+                            adapter.notifyDataSetChanged();
+                        }
+                    });
+
+                }
+            });
+            cutTask.execute();
+            sourceFiles.clear();
+            FileArrayAdapter.showCheckBox = false;
+            FileArrayAdapter fa = (FileArrayAdapter) getListView().getAdapter();
+            fa.removeSelection();
+            rlayout1.setVisibility(LinearLayout.GONE);
+            rlayout2.setVisibility(LinearLayout.GONE);
+
+
+        }
+        sourceFiles.clear();
+        FileArrayAdapter.showCheckBox = false;
+        FileArrayAdapter fa = (FileArrayAdapter) getListView().getAdapter();
+        fa.removeSelection();
+        rlayout1.setVisibility(LinearLayout.GONE);
+        rlayout2.setVisibility(LinearLayout.GONE);
+    }
+
+    public void deleteOnclick() {
+        sourceFiles.clear();
+        for ( int i =0; i < adapter.getSelectedIds().size() ; i++) {
+            al=adapter.mSelectedItemsIds.keyAt(i);
+            Item o = adapter.getItem(al);
+            sourceFiles.add(o.getPath().toString());
+
+        }
+
+
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setMessage("Are you sure you want to delete?")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        ProgressDialog progress = new ProgressDialog(MainActivity.this);
+                        deleteTask= new DeleteTask(progress, sourceFiles);
+                        deleteTask.setOnCompleteListener(new CompleteAction() {
+                            @Override
+                            public void onCompleteListener() {
+                                //MainActivity mainActivity = null;
+                                mainActivity.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        getfile(new File(currentPath));
+                                        adapter.notifyDataSetChanged();
+                                    }
+                                });
+
+                            }
+                        });
+                        deleteTask.execute();
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                        FileArrayAdapter.showCheckBox = false;
+                        FileArrayAdapter fa= (FileArrayAdapter) getListView().getAdapter();
+                        fa.removeSelection();
+                        rlayout1.setVisibility(LinearLayout.GONE);
+                        getfile(new File(currentPath));
+                        adapter.notifyDataSetChanged();
+
+                    }
+                });
+        FileArrayAdapter.showCheckBox = false;
+        FileArrayAdapter fa= (FileArrayAdapter) getListView().getAdapter();
+        fa.removeSelection();
+        rlayout1.setVisibility(LinearLayout.GONE);
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    private void cutOnclick() {
+        sourceFiles.clear();
+        WhichBtnPressed=R.id.btncut;
+        pathForcut= currentPath;
+        for ( int i =0; i < adapter.getSelectedIds().size() ; i++) {
+            al=adapter.mSelectedItemsIds.keyAt(i);
+            Item o = adapter.getItem(al);
+            sourceFiles.add(o.getPath().toString());
+
+        }
+
+        FileArrayAdapter.showCheckBox = false;
+        FileArrayAdapter fa= (FileArrayAdapter) getListView().getAdapter();
+        fa.removeSelection();
+        rlayout1.setVisibility(LinearLayout.GONE);
+        rlayout2.setVisibility(LinearLayout.VISIBLE);
+    }
+
 
     protected void onListItemClick(ListView l, View v, int position, long id) {
         // TODO Auto-generated method stub
@@ -793,7 +1062,7 @@ public class MainActivity extends ListActivity    {
     }
 
 
- //  public boolean onCreateOptionsMenu(Menu menu) {
+//   public boolean onCreateOptionsMenu(Menu menu) {
 //
 //        MenuInflater inflater = getMenuInflater();
 //        inflater.inflate(R.menu.menu, menu);
@@ -803,50 +1072,30 @@ public class MainActivity extends ListActivity    {
 //
 //        switch (item.getItemId()) {
 //            case R.id.copy:
-//                //copyToDirectory()
+//
 //
 //                return true;
 //            case R.id.cut:
-//                String dirFrom2,dirTo2 ;
 //
-//                dirFrom2= root2.toString();
-//                dirTo2 = currentPath;
-//                int suc=  copyToDirectory(dirFrom2, dirTo2);
-//                int status = deleteTarget(currentPath);
-//
-//                if ( suc == -1 || status== -1)
-//                    return false;
 //
 //                return true;
 //            case R.id.paste:
-//                String dirFrom,dirTo ;
 //
-//                dirFrom= root2.toString();
-//                dirTo = currentPath;
-//                int suc2=  copyToDirectory(dirFrom, dirTo);
-//                if ( suc2 == -1)
-//                    return false;
-//                else return true;
 //
 //            case R.id.delete:
-//                String deldir;
-//                deldir= currentPath;
-//                int status2 = deleteTarget(currentPath);
-//                if (status2 == 0)
-//                    return true;
-//                else return false;
+//
 //            default:
 //                return super.onOptionsItemSelected(item);
 //        }
 //    }
-//
-//
+
+
 @Override
     public void onBackPressed(){
     if (statusLongclick == true) {
         FileArrayAdapter.showCheckBox = false;
         rlayout1.setVisibility(LinearLayout.GONE);
-      //  listView.clearChoices();
+       listView.clearChoices();
       //  getListView().setChoiceMode(ListView.CHOICE_MODE_NONE);
 
 
@@ -1073,7 +1322,7 @@ public class MainActivity extends ListActivity    {
     }
 
 
-
+//
 //    @Override
 //    public void onCreateContextMenu(ContextMenu menu, View v,
 //                                    ContextMenu.ContextMenuInfo menuInfo) {
@@ -1131,16 +1380,12 @@ public class MainActivity extends ListActivity    {
 //        }
 //        else if(item.getTitle()=="cut")
 //        {
-//            String dirFrom= currentPath;
-//            int suc=  copyToDirectory(dirFrom, dirTo);
-//            int status = deleteTarget(dirFrom);
-//            if (suc == 0 && status== 0 ) return true; else return false;
+//
 //
 //        }
 //        else if(item.getTitle()=="delete")
 //        {
-//            int status2 = deleteTarget(currentPath);
-//            if (status2== 0 ) return true; else return false;
+//
 //
 //        }
 //        else
@@ -1151,8 +1396,8 @@ public class MainActivity extends ListActivity    {
 //
 //
 //    }
-//
-//
+
+
 
 
 
@@ -1200,6 +1445,23 @@ public class MainActivity extends ListActivity    {
         if ( progress!=null && progress.isShowing() ){
             progress.dismiss();
         }
+    }
+
+
+    public void copyOnclick()
+    {
+        WhichBtnPressed=R.id.btncopy;
+        sourceFiles.clear();
+        for ( int i =0; i < adapter.getSelectedIds().size() ; i++) {
+            al=adapter.mSelectedItemsIds.keyAt(i);
+            Item o = adapter.getItem(al);
+            sourceFiles.add(o.getPath().toString());
+        }
+        FileArrayAdapter.showCheckBox = false;
+        FileArrayAdapter fa= (FileArrayAdapter) getListView().getAdapter();
+        fa.removeSelection();
+        rlayout1.setVisibility(LinearLayout.GONE);
+        rlayout2.setVisibility(LinearLayout.VISIBLE);
     }
 }
 

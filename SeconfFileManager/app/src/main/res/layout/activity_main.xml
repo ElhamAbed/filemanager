@@ -10,35 +10,35 @@
       android:id="@android:id/list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/btnPnlContainer"
+        android:layout_above="@+id/firstpannel"
         android:background="@drawable/bkg"
 
         ></ListView>
-
-<LinearLayout
-    android:id="@+id/btnPnlContainer"
-    android:layout_alignParentBottom="true"
-    android:layout_width="match_parent"
-
-    android:layout_height="wrap_content">
-    <include
-
-        layout="@layout/generic_header_layout" />
-
-
-</LinearLayout>
     <LinearLayout
-        android:id="@+id/btnPnlContainer2"
+        android:id="@+id/firstpannel"
         android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
 
         android:layout_height="wrap_content">
         <include
 
-            layout="@layout/panel_two" />
+            layout="@layout/bottom_navigation" />
 
 
     </LinearLayout>
+    <LinearLayout
+        android:id="@+id/secondpannel"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+
+        android:layout_height="wrap_content">
+        <include
+
+            layout="@layout/panel_two_new" />
+
+
+    </LinearLayout>
+
 
 
 
