@@ -84,11 +84,11 @@ public class CompressTask extends AsyncTask<Void, String, Void> {
             filecountertotal +=  counter(new File(sourceFiles.get(i)));
 
         for (int i = 0; i < 1; i++) {
-            if (new File(sourceFiles.get(i)).isDirectory()) {
+           if (new File(sourceFiles.get(i)).isDirectory()) {
                 try {
 
                     zipFolder(sourceFiles, toLoc2);
-                } catch (Exception e) {
+               } catch (Exception e) {
                     e.printStackTrace();
                 }
             } else
